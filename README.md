@@ -1,4 +1,10 @@
-# Getting Started with Create React App
+# Marvel information portal
+
+This application helps people who are interested into comics to find information about characters from the pages of the amasing Marvel comics books and track their appearances in the univerce of Marvel comics.
+
+This app uses open [Marvel API](https://developer.marvel.com/).
+
+## Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
