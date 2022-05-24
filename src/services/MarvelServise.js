@@ -1,13 +1,14 @@
 import { useHttp } from "../hooks/http.hook";
 
-const useMarvelServise = () => {
+const useMarvelService = () => {
   const { loading, request, error, clearError } = useHttp();
 
   const _apiBase = "https://gateway.marvel.com:443/v1/public/";
-  const _apiKey = "apikey=cf79d177035f547ccb046579286e898a";
+  // ЗДЕСЬ БУДЕТ ВАШ КЛЮЧ, ЭТОТ КЛЮЧ МОЖЕТ НЕ РАБОТАТЬ
+  const _apiKey = "apikey=c5d6fc8b83116d92ed468ce36bac6c62";
   const _baseOffset = 210;
 
-  const getAllCharacters = async (offset = this._baseOffset) => {
+  const getAllCharacters = async (offset = _baseOffset) => {
     const res = await request(
       `${_apiBase}characters?limit=9&offset=${offset}&${_apiKey}`
     );
@@ -19,21 +20,55 @@ const useMarvelServise = () => {
     return _transformCharacter(res.data.results[0]);
   };
 
+  const getAllComics = async (offset = 0) => {
+    const res = await request(
+      `${_apiBase}comics?orderBy=issueNumber&limit=8&offset=${offset}&${_apiKey}`
+    );
+    return res.data.results.map(_transformComics);
+  };
+
+  const getComic = async (id) => {
+    const res = await request(`${_apiBase}comics/${id}?${_apiKey}`);
+    return _transformComics(res.data.results[0]);
+  };
+
   const _transformCharacter = (char) => {
     return {
-      name: char.name,
       id: char.id,
+      name: char.name,
       description: char.description
         ? `${char.description.slice(0, 210)}...`
         : "There is no description for this character",
-      thumbnail: `${char.thumbnail.path}.${char.thumbnail.extension}`,
+      thumbnail: char.thumbnail.path + "." + char.thumbnail.extension,
       homepage: char.urls[0].url,
       wiki: char.urls[1].url,
       comics: char.comics.items,
     };
   };
 
-  return { loading, error, getAllCharacters, getCharacter, clearError };
+  const _transformComics = (comics) => {
+    return {
+      id: comics.id,
+      title: comics.title,
+      description: comics.description || "There is no description",
+      pageCount: comics.pageCount
+        ? `${comics.pageCount} p.`
+        : "No information about the number of pages",
+      thumbnail: comics.thumbnail.path + "." + comics.thumbnail.extension,
+      language: comics.textObjects.language || "en-us",
+      price: comics.prices.price ? `${comics.prices.price}$` : "not available",
+    };
+  };
+
+  return {
+    loading,
+    error,
+    clearError,
+    getAllCharacters,
+    getCharacter,
+    getAllComics,
+    getComic,
+  };
 };
 
-export default useMarvelServise;
+export default useMarvelService;
